@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="pyRadarSP",
+    name="pyrads",
     version="0.1",
     description="Package containing radar processing algorithms and pipeline structures",
     url="https://gitlab.lrz.de/ki-asic/pyradarsp",
