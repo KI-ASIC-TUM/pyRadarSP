@@ -4,6 +4,7 @@ Module containing the base algorithm class
 """
 # Standard libraries
 from abc import ABC, abstractmethod
+import numpy as np
 # Local libraries
 
 
@@ -12,19 +13,25 @@ class Algorithm(ABC):
     Parent class for radar algorithms
     """
     def __init__(self, **kwargs):
-        self.__name__ == "pyrads.Algorithm"
         self.in_data_shape = kwargs.get("in_data_shape")
         self.out_data_shape = kwargs.get("out_data_shape", None)
         if not self.out_data_shape:
             self.calculate_out_shape()
+        self.output = np.zeros(self.out_data_shape)
 
     @abstractmethod
     def calculate_out_shape(self):
         pass
 
     @abstractmethod
-    def run(self):
+    def _run(self, in_data):
         pass
 
-    def __call__(self):
-        self.run()
+    def __call__(self, in_data):
+        self.output = self._run(in_data)
+        # Check dimensionality
+        if self.output.shape != self.out_data_shape:
+            raise ValueError(
+                "Output shape {} does not match with expected shape {}"
+                "".format(self.output.shape, self.out_data_shape))
+        return self.output

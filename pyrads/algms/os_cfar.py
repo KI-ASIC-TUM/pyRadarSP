@@ -2,6 +2,8 @@
 """
 OS-CFAR algorithm
 """
+# Standard libraries
+import numpy as np
 # Local libraries
 import pyrads.algorithm
 
@@ -34,8 +36,8 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         The size of the padding is dependent on the CFAR window size
         and the number of guard cells.
         """
-        pad = np.zeros((guard_cells+window_length)//2
-        padded_data = np.hstack(pad, data, pad))
+        pad = np.zeros(self.n_guard_cells+self.window_width)//2
+        padded_data = np.hstack((pad, data, pad))
         return padded_data
 
 
@@ -56,8 +58,8 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         padded_data = self.padding(data)
         threshold = np.zeros_like(data)
         for index in range(data.size):
-            window = self.get_window(data, index)
-            # Find the local threshold as the kth ordered value scaled up
+            window = self.get_window(padded_data, index)
+            # Find the kth highest value in the window
             ordered_window = np.sort(window)[::-1]
             threshold[index] = ordered_window[self.ordered_k]
         # Compute object detection
@@ -72,9 +74,9 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         pass
 
 
-    def run(self):
+    def _run(self, in_data):
         if self.n_dims== 1:
-            result = self.run_1d()
+            result = self.run_1d(in_data)
         elif self.n_dims==2:
-            result = self.run_2d()
+            result = self.run_2d(in_data)
         return result

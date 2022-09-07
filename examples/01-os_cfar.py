@@ -3,12 +3,12 @@
 Run OS-CFAR over test dataset
 """
 # Standard libraries
+import numpy as np
 # Local libraries
-import pyrads.algms.oscfar
+import pyrads.algms.os_cfar
 import pyrads.pipeline
-import pyrads.pipes.preprocessing_pipeline
+import pyrads.pipes.preproc_pipeline
 import pyrads.utils.plotter
-import pyrads.utils.data_loader
 
 
 def main():
@@ -22,21 +22,23 @@ def main():
         "fft_size": 256
     }
     oscfar_params = {
+        "in_data_shape": (256,),
         "n_dims": 1,
         "window_width": 16,
         "ordered_k": 10,
         "alpha": 0.5,
         "n_guard_cells": 8,
     }
-
-    data = pyrads.utils.data_loader.load_dataset(**dataset_params)
-
+    if False:
+        data = pyrads.utils.data_loader.load_dataset(**dataset_params)
+    data = np.ones((256))
     # Create a pipeline instance and add the data and a signal processing
     # algorithm to it.
-    preproc_pipe = pyrads.pipes.preprocesing_pipeline.Pipeline(**preproc_params)
-    oscfar_alg = pyrads.algms.oscfar.OSCFAR(**oscfar_params)
+    if False:
+        preproc_pipe = pyrads.pipes.preprocesing_pipeline.Pipeline(**preproc_params)
+    oscfar_alg = pyrads.algms.os_cfar.OSCFAR(**oscfar_params)
 
-    algorithms = [preproc_pipe, oscfar_alg]
+    algorithms = [oscfar_alg]
     pipeline = pyrads.pipeline.Pipeline(algorithms)
     pipeline.run(data)
 
