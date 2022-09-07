@@ -22,9 +22,11 @@ def main():
         "fft_size": 256
     }
     oscfar_params = {
-        "k": 10,
-        "alpha": 0.2,
-        "n_neighbours": 8
+        "n_dims": 1,
+        "window_width": 16,
+        "ordered_k": 10,
+        "alpha": 0.5,
+        "n_guard_cells": 8,
     }
 
     data = pyrads.utils.data_loader.load_dataset(**dataset_params)

@@ -6,12 +6,25 @@ Module containing the base algorithm class
 from abc import ABC, abstractmethod
 # Local libraries
 
+
 class Algorithm(ABC):
     """
     Parent class for radar algorithms
     """
-    def __init__(self):
-        self.input_shape = None
+    def __init__(self, **kwargs):
+        self.__name__ == "pyrads.Algorithm"
+        self.in_data_shape = kwargs.get("in_data_shape")
+        self.out_data_shape = kwargs.get("out_data_shape", None)
+        if not self.out_data_shape:
+            self.calculate_out_shape()
 
-    def test_method(self):
+    @abstractmethod
+    def calculate_out_shape(self):
         pass
+
+    @abstractmethod
+    def run(self):
+        pass
+
+    def __call__(self):
+        self.run()

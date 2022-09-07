@@ -7,11 +7,13 @@ from abc import ABC, abstractmethod
 import numpy as np
 # Local libraries
 
+
 class Pipeline():
     """
     Parent class for radar algorithms
     """
     def __init__(self, chain=[], dataset=""):
+        self.__name__ == "pyrads.Pipeline"
         self.__algorithms = []
         self.__in_data = np.array([])
         self.output = np.array([])
