@@ -50,9 +50,14 @@ class OSCFAR(pyrads.algorithm.Algorithm):
 
 
     def get_window(self, data, index):
+        """
+        Fetch the CFAR neighbouring window for the specified data index
+        """
         # Construct the window around the current value
         init = index
         end = index + self.n_guard_cells + self.window_width + 1
+        # The central value and guard cells are ignored and not considered
+        # neighbours fol calculating the CFAR threshold
         pre_window = data[..., init:init+self.window_width//2]
         post_window = data[... ,end-self.window_width//2:end]
         window = np.hstack((pre_window, post_window))
@@ -75,10 +80,11 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         return result
 
 
-    def run_2d(self):
+    def run_2d(self, data):
         """
         Run the OS-CFAR in 2D
         """
+        raise NotImplementedError
         pass
 
 
