@@ -76,10 +76,10 @@ class Pipeline():
                 "Input shape {} does not match with input algorithm shape {}"
                 "".format(in_data.shape, self._algorithms[0].in_data_shape))
         # Run the initial algorithm with the input data
-        self._algorithms[0](in_data)
+        output = self._algorithms[0](in_data)
         # Run remaining algorithms iteratively
         # TODO
-        pass
+        return output
 
 
     def __getitem__(self, item):
@@ -90,5 +90,6 @@ class Pipeline():
         return len(self._algorithms)
 
 
-    def __call__(self):
-        self._run()
+    def __call__(self, in_data):
+        self.output = self._run(in_data)
+        return self.output
