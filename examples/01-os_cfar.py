@@ -9,6 +9,7 @@ import dhandler
 import dhandler.hires
 import dhandler.signal_processing
 import dhandler.database
+import pyrads.algms.identity
 import pyrads.algms.os_cfar
 import pyrads.pipeline
 import pyrads.pipes.preproc_pipeline
@@ -70,10 +71,11 @@ def main():
     if False:
         preproc_pipe = pyrads.pipes.preprocesing_pipeline.Pipeline(**preproc_params)
     oscfar_alg = pyrads.algms.os_cfar.OSCFAR(**oscfar_params)
+    id_alg = pyrads.algms.identity.Identity(in_data_shape=oscfar_alg.out_data_shape)
 
-    algorithms = [oscfar_alg]
+    algorithms = [oscfar_alg, id_alg]
     pipeline = pyrads.pipeline.Pipeline(algorithms)
-    out = pipeline(data)
+    out = pipeline(data)[-1]
 
     #TODO: Plotting function in external library
     import matplotlib.pyplot as plt

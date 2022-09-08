@@ -22,7 +22,7 @@ class Pipeline():
             self.add_data(dataset)
 
         if len(chain) > 0:
-            self.add_chain(chain)
+            self.add(chain)
 
 
     def add_data(self, name):
@@ -46,20 +46,20 @@ class Pipeline():
         return check
 
 
-    def add_chain(self, chain):
+    def add(self, chain):
         """
         Add a chain of algorithms or pipelines
         """
         for element in chain:
             if isinstance(element, pyrads.algorithm.Algorithm):
-                self.add_algorithm(element)
+                self._add_algorithm(element)
             elif isinstance(element, pyrads.pipeline.Pipeline):
-                self.add_chain(element.__algorithms)
+                self.add(element.__algorithms)
             else:
                 raise TypeError("input type invalid")
 
 
-    def add_algorithm(self, algorithm):
+    def _add_algorithm(self, algorithm):
         """
         Add an algorithm to the processing chain
         """
@@ -75,11 +75,13 @@ class Pipeline():
             raise ValueError(
                 "Input shape {} does not match with input algorithm shape {}"
                 "".format(in_data.shape, self._algorithms[0].in_data_shape))
-        # Run the initial algorithm with the input data
-        output = self._algorithms[0](in_data)
-        # Run remaining algorithms iteratively
-        # TODO
-        return output
+        # List with data at all stages of the pipeline
+        pipe_data = [in_data]
+        # Run algorithms iteratively. Each algorithm uses output data from
+        # previous algorithm
+        for idx, alg in enumerate(self):
+            pipe_data.append(self._algorithms[idx](pipe_data[-1]))
+        return pipe_data
 
 
     def __getitem__(self, item):
