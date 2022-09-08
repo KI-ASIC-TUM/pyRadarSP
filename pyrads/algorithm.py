@@ -25,9 +25,15 @@ class Algorithm(ABC):
 
     @abstractmethod
     def _run(self, in_data):
+        """
+        Functionality of children class is defined here
+        """
         pass
 
     def __call__(self, in_data):
+        """
+        Call for the algorithm class. Do not modify in children class
+        """
         self.output = self._run(in_data)
         # Check dimensionality
         if self.output.shape != self.out_data_shape:
