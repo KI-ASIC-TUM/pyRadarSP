@@ -31,12 +31,20 @@ class OSCFAR(pyrads.algorithm.Algorithm):
 
     def padding(self, data):
         """
-        Pad the input data with zeros
+        Pad the input data with zeros along the sample dimension
+
+        It is assumed that the sample dimension is the last dimension of
+        the input data.
 
         The size of the padding is dependent on the CFAR window size
         and the number of guard cells.
         """
-        pad = np.zeros(self.n_guard_cells+self.window_width)//2
+        # Add a padding window on both ends in the sample dimension
+        # The padding is the same through the rest of the dimensions,
+        # So the padding in those dimensions is of the same size
+        pad_size = (self.n_guard_cells+self.window_width) // 2
+        pad_shape = data.shape[:-1] + (pad_size,)
+        pad = np.zeros(pad_shape)
         padded_data = np.hstack((pad, data, pad))
         return padded_data
 
@@ -45,8 +53,8 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         # Construct the window around the current value
         init = index
         end = index + self.n_guard_cells + self.window_width + 1
-        pre_window = data[init:init+self.window_width//2]
-        post_window = data[end-self.window_width//2:end]
+        pre_window = data[..., init:init+self.window_width//2]
+        post_window = data[... ,end-self.window_width//2:end]
         window = np.hstack((pre_window, post_window))
         return window
 
@@ -57,11 +65,11 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         """
         padded_data = self.padding(data)
         threshold = np.zeros_like(data)
-        for index in range(data.size):
+        for index in range(data.shape[-1]):
             window = self.get_window(padded_data, index)
             # Find the kth highest value in the window
-            ordered_window = np.sort(window)[::-1]
-            threshold[index] = ordered_window[self.ordered_k]
+            ordered_window = np.sort(window, axis=-1)[..., ::-1]
+            threshold[..., index] = ordered_window[..., self.ordered_k]
         # Compute object detection
         result = data*self.alpha > threshold
         return result

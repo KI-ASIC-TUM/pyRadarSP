@@ -78,9 +78,9 @@ def main():
     #TODO: Plotting function in external library
     import matplotlib.pyplot as plt
     fig, axs = plt.subplots(2)
-    axs[0].plot(data)
+    axs[0].plot(data[0])
     axs[0].set_title("FFT")
-    axs[1].plot(out)
+    axs[1].plot(out[0])
     axs[1].set_title("OS-CFAR")
     plt.tight_layout()
     plt.show()
