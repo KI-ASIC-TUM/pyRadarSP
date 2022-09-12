@@ -11,7 +11,7 @@ import logging
 import pyrads.algorithm
 
 
-class EinsumWindow(pyrads.algorithm.Algorithm):
+class Window(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
