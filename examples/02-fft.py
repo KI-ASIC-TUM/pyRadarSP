@@ -6,8 +6,8 @@ Run OS-CFAR over test dataset
 import numpy as np
 import matplotlib.pyplot as plt
 # Local libraries
-import dhandler.hires
-import dhandler.processed
+import dhandler.h5_handler
+import dhandler.npy_handler
 import pyrads.algms.fft
 import pyrads.algms.remove_offset
 import pyrads.algms.einsum_window
@@ -21,10 +21,9 @@ def main():
     dataset_params = {
         "dataset": "raw_data/scenario1_0",
     }
-    dh_hires = dhandler.hires.DataHandler()
-    radar_frames, radar_config, calib_vec = dh_hires.load(dataset_params["dataset"], dataset_dir=None)
-    data = np.vstack(radar_frames)[0]
-    print(data.shape)
+    dh_hires = dhandler.h5_handler.H5Handler()
+    data, radar_config, calib_vec = dh_hires.load(dataset_params["dataset"], dataset_dir=None)
+    data = data[0]
 
     # User-defined parameters for os-cfar algorithm
     einsum_window_params = {
@@ -38,7 +37,7 @@ def main():
     # algorithm to it.
 
     remove_offset_alg = pyrads.algms.remove_offset.RemoveOffset(in_data_shape=data.shape)
-    einsum_window_alg = pyrads.algms.einsum_window.EinsumWindow(in_data_shape=remove_offset_alg.out_data_shape, **einsum_window_params)
+    einsum_window_alg = pyrads.algms.einsum_window.Window(in_data_shape=remove_offset_alg.out_data_shape, **einsum_window_params)
     range_fft_alg = pyrads.algms.fft.FFT(in_data_shape=einsum_window_alg.out_data_shape, **fft_params)
 
     algorithms = [remove_offset_alg, einsum_window_alg, range_fft_alg]
@@ -52,7 +51,7 @@ def main():
     ax[3].plot(out[3][0,0,0,:])
     plt.show()
     
-    dh_processed = dhandler.processed.DataHandler()
+    dh_processed = dhandler.npy_handler.NPyHandler()
     directory="Processed/HiRes/range_fft_data"
     hires_dataset_config = dh_hires.load_config()
     config = dh_processed.save_dataset(dataset_name="range_fft/scenario1_2",
