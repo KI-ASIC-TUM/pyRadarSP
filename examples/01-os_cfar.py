@@ -37,6 +37,8 @@ def main():
     }
     fft_params = {
         "type": "range",
+        "normalize": True,
+        "out_format": "modulus"
     }
     oscfar_params = {
         "n_dims": 1,

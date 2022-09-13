@@ -26,12 +26,17 @@ class FFT(pyrads.algorithm.Algorithm):
 
     def calculate_out_shape(self):
         """
-        In case of 1D FFT, the negative spectrum is removed
+        Calculate the shape of the FFT output
+
+        In case of 1D FFT, the negative spectrum is removed.
         """
         n_tx, n_rx, n_ramps, n_samples = self.in_data_shape
         if self.type=='range':
             self.n_real_bins = n_samples // 2
             self.out_data_shape = (n_tx, n_rx, n_ramps, self.n_real_bins)
+            # Add a new dimension in case polar format is used for output
+            if self.out_format == "modulus-phase":
+                self.out_data_shape += (2,)
         elif self.type=='doppler':
             self.out_data_shape = self.in_data_shape
 
@@ -42,6 +47,12 @@ class FFT(pyrads.algorithm.Algorithm):
         """
         if self.out_format == "modulus":
             formatted_result = np.abs(fft_data)
+        elif self.out_format == "complex":
+            formatted_result = fft_data
+        elif self.out_format == "modulus-phase":
+            mod = np.abs(fft_data)
+            angle = np.angle(fft_data)
+            formatted_result = np.stack((mod, angle), axis=-1)
         else:
             raise ValueError("Invalid format: {}". format(self.out_format))
         return formatted_result
