@@ -95,3 +95,4 @@ class ScrollPlotter():
 
     def generate_movie(self):
         #TODO
+        pass
