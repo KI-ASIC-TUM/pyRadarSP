@@ -18,6 +18,9 @@ class FFT(pyrads.algorithm.Algorithm):
         # TODO: Change variable name. Type is a reserved word and could 
         # bring conflicts
         self.type = kwargs.get("type")
+        self.out_format = kwargs.get("out_format", "modulus")
+        self.normalize = kwargs.get("normalize", True)
+        self.n_real_bins = 0
         super().__init__(**kwargs)
 
 
@@ -27,10 +30,21 @@ class FFT(pyrads.algorithm.Algorithm):
         """
         n_tx, n_rx, n_ramps, n_samples = self.in_data_shape
         if self.type=='range':
-            n_fft_bins = self.in_data_shape[-1] // 2
-            self.out_data_shape = (n_tx, n_rx, n_ramps, n_samples)
+            self.n_real_bins = n_samples // 2
+            self.out_data_shape = (n_tx, n_rx, n_ramps, self.n_real_bins)
         elif self.type=='doppler':
             self.out_data_shape = self.in_data_shape
+
+
+    def format_fft(self, fft_data):
+        """
+        Adjust the output FFT data to the specified format
+        """
+        if self.out_format == "modulus":
+            formatted_result = np.abs(fft_data)
+        else:
+            raise ValueError("Invalid format: {}". format(self.out_format))
+        return formatted_result
 
 
     def range_fft(self, data):
@@ -39,9 +53,12 @@ class FFT(pyrads.algorithm.Algorithm):
         """
         # Apply Range FFT only positive frequencies
         data = np.fft.fft(data, axis=-1)
-        # Normalize
-        normalized_data = data / self.in_data_shape[-1] * 2
-        return normalized_data
+        # Normalize the FFT
+        if self.normalize:
+            data /= self.in_data_shape[-1]*2
+        # Remove negative spectrum
+        real_data = data[..., :self.n_real_bins]
+        return real_data
 
 
     def doppler_fft(self, data):
@@ -51,9 +68,10 @@ class FFT(pyrads.algorithm.Algorithm):
         # Apply Doppler FFT
         data = np.fft.fft(data, axis=-2)
         data = np.fft.fftshift(data, axes=-2)
-        # Normalize FFT
-        normalized_data = data / self.in_data_shape[-2] * 2
-        return normalized_data
+        # Normalize the FFT
+        if self.normalize:
+            data /= self.in_data_shape[-2]*2
+        return data
 
 
     def _run(self, in_data):
@@ -61,7 +79,8 @@ class FFT(pyrads.algorithm.Algorithm):
         Take the right FFT type and return result.
         """
         if self.type=="range":
-            result = self.range_fft(in_data)
+            fft_result = self.range_fft(in_data)
         elif self.type=="doppler":
-            result = self.doppler_fft(in_data)
-        return result
+            fft_result = self.doppler_fft(in_data)
+        formatted_result = self.format_fft(fft_result)
+        return formatted_result
