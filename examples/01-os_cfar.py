@@ -18,7 +18,7 @@ import pyrads.pipes.preproc_pipeline
 import pyrads.utils.plotter
 
 
-def main():
+def main(frame_n=30):
     # User-defined parameters for the pipeline
     dataset_params = {
         "dataset": "raw_data/scenario1_0",
@@ -28,7 +28,9 @@ def main():
         dataset_params["dataset"],
         dataset_dir=None
     )
-    radar_dataframes = data[60]
+    images = h5_handler.load_images(dataset_params["dataset"])
+    image = images[frame_n]
+    radar_dataframes = data[frame_n]
 
     # Define algorithms parameters
     window_params = {
@@ -48,18 +50,18 @@ def main():
         "n_guard_cells": 2,
     }
     remove_offset_alg = pyrads.algms.remove_offset.RemoveOffset(
-        in_data_shape=radar_dataframes.shape
+        radar_dataframes.shape
     )
     window_alg = pyrads.algms.window.Window(
-        in_data_shape=remove_offset_alg.out_data_shape,
+        remove_offset_alg.out_data_shape,
         **window_params
     )
     range_fft_alg = pyrads.algms.fft.FFT(
-        in_data_shape=window_alg.out_data_shape,
+        window_alg.out_data_shape,
         **fft_params
     )
     oscfar_alg = pyrads.algms.os_cfar.OSCFAR(
-        in_data_shape=range_fft_alg.out_data_shape,
+        range_fft_alg.out_data_shape,
         **oscfar_params
     )
 
@@ -73,11 +75,11 @@ def main():
     pipe_data = pipeline(radar_dataframes)
     fft_out = pipe_data[-2]
     out = pipe_data[-1]
-    
+
     # Plot results
     fft_data = fft_out[0,0,25,:]
     out_data = out[0,0,25,:]
-    pyrads.utils.plotter.plot_single_ramp_pipeline(fft_data, out_data)
+    pyrads.utils.plotter.plot_single_ramp_pipeline(image, fft_data, out_data)
     return
 
 

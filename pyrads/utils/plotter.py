@@ -8,6 +8,7 @@ import numpy as np
 
 
 def plot_single_ramp_pipeline(
+        image,
         in_data,
         out,
         in_title="FFT",
@@ -16,10 +17,13 @@ def plot_single_ramp_pipeline(
     """
     Plot input and output data of a single ramp of a 1D pipeline
     """
-    fig, axs = plt.subplots(2)
-    axs[0].plot(in_data)
-    axs[0].set_title(in_title)
-    axs[1].plot(out)
-    axs[1].set_title(out_title)
+    fig, axs = plt.subplots(3, figsize=(10,12))
+    axs[0].imshow(image)
+    axs[0].set_xticks([])
+    axs[0].set_yticks([])
+    axs[1].plot(in_data)
+    axs[1].set_title(in_title)
+    axs[2].plot(out)
+    axs[2].set_title(out_title)
     fig.tight_layout()
     plt.show()

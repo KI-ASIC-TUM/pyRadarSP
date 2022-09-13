@@ -12,8 +12,8 @@ class Algorithm(ABC):
     """
     Parent class for radar algorithms
     """
-    def __init__(self, **kwargs):
-        self.in_data_shape = kwargs.get("in_data_shape")
+    def __init__(self, in_data_shape, **kwargs):
+        self.in_data_shape = in_data_shape
         self.out_data_shape = kwargs.get("out_data_shape", None)
         if not self.out_data_shape:
             self.calculate_out_shape()

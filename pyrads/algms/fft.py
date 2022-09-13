@@ -14,14 +14,14 @@ class FFT(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         # TODO: Change variable name. Type is a reserved word and could 
         # bring conflicts
         self.type = kwargs.get("type")
         self.out_format = kwargs.get("out_format", "modulus")
         self.normalize = kwargs.get("normalize", True)
         self.n_real_bins = 0
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
     def calculate_out_shape(self):

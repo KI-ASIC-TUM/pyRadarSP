@@ -16,8 +16,8 @@ class Window(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # Load algorithm parameters
         self.window_type = kwargs.get("window_type")
         self.axis = kwargs.get("axis")
