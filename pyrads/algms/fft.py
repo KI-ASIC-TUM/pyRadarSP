@@ -30,10 +30,10 @@ class FFT(pyrads.algorithm.Algorithm):
 
         In case of 1D FFT, the negative spectrum is removed.
         """
-        n_tx, n_rx, n_ramps, n_samples = self.in_data_shape
+        self.out_data_shape = self.in_data_shape
         if self.type=='range':
-            self.n_real_bins = n_samples // 2
-            self.out_data_shape = (n_tx, n_rx, n_ramps, self.n_real_bins)
+            self.n_real_bins = self.out_data_shape[-1] // 2
+            self.out_data_shape = self.in_data_shape[:-1] + (self.n_real_bins,)
             # Add a new dimension in case polar format is used for output
             if self.out_format == "modulus-phase":
                 self.out_data_shape += (2,)
