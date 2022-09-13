@@ -10,7 +10,7 @@ import dhandler.h5_handler
 import dhandler.npy_handler
 import pyrads.algms.fft
 import pyrads.algms.remove_offset
-import pyrads.algms.einsum_window
+import pyrads.algms.window
 import pyrads.pipeline
 import pyrads.pipes.preproc_pipeline
 import pyrads.utils.plotter
@@ -21,8 +21,8 @@ def main():
     dataset_params = {
         "dataset": "raw_data/scenario1_0",
     }
-    dh_hires = dhandler.h5_handler.H5Handler()
-    data, radar_config, calib_vec = dh_hires.load(dataset_params["dataset"], dataset_dir=None)
+    h5_handler = dhandler.h5_handler.H5Handler()
+    data, radar_config, calib_vec = h5_handler.load(dataset_params["dataset"], dataset_dir=None)
     data = data[0]
 
     # User-defined parameters for os-cfar algorithm
@@ -37,10 +37,10 @@ def main():
     # algorithm to it.
 
     remove_offset_alg = pyrads.algms.remove_offset.RemoveOffset(in_data_shape=data.shape)
-    einsum_window_alg = pyrads.algms.einsum_window.Window(in_data_shape=remove_offset_alg.out_data_shape, **einsum_window_params)
-    range_fft_alg = pyrads.algms.fft.FFT(in_data_shape=einsum_window_alg.out_data_shape, **fft_params)
+    window_alg = pyrads.algms.window.Window(in_data_shape=remove_offset_alg.out_data_shape, **einsum_window_params)
+    range_fft_alg = pyrads.algms.fft.FFT(in_data_shape=window_alg.out_data_shape, **fft_params)
 
-    algorithms = [remove_offset_alg, einsum_window_alg, range_fft_alg]
+    algorithms = [remove_offset_alg, window_alg, range_fft_alg]
     pipeline = pyrads.pipeline.Pipeline(algorithms)
     out = pipeline(data)
 
@@ -53,7 +53,7 @@ def main():
     
     dh_processed = dhandler.npy_handler.NPyHandler()
     directory="Processed/HiRes/range_fft_data"
-    hires_dataset_config = dh_hires.load_config()
+    hires_dataset_config = h5_handler.load_config()
     config = dh_processed.save_dataset(dataset_name="range_fft/scenario1_2",
                               data_dict={"data-files": [{"data": out[3], "filename-suffix": "_test_range_fft", "directory":directory}],
                                          "radar-config": [{"data": radar_config, "filename-suffix": "_test_range_fft", "directory":directory}]},

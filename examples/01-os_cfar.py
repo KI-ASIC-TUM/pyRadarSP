@@ -6,7 +6,7 @@ Run OS-CFAR over test dataset
 import numpy as np
 # Local libraries
 import dhandler
-import dhandler.hires
+import dhandler.h5_handler
 import dhandler.signal_processing
 import dhandler.database
 import pyrads.algms.identity
@@ -17,14 +17,17 @@ import pyrads.utils.plotter
 
 
 def load_data(**kwargs):
-    dataset_name = kwargs.get("dataset")
-    radar_dataframes, radar_config = dhandler.hires.load_dataset(
-            dataset_name, include_config=True
-    )
-    calib_vec = dhandler.hires.load_calibration(dataset_name, radar_config)
+    h5_handler = dhandler.h5_handler.H5Handler()
+    data, radar_config, calib_vec = h5_handler.load(kwargs["dataset"], dataset_dir=None)
+    radar_dataframes = data
+    # dataset_name = kwargs.get("dataset")
+    # radar_dataframes, radar_config = dhandler.h5_handler.load_dataset(
+    #         dataset_name, include_config=True
+    # )
+    # calib_vec = dhandler.h5_handler.load_calibration(dataset_name, radar_config)
 
     # We do not care about the actual frames
-    radar_dataframes = np.vstack(radar_dataframes)
+    # radar_dataframes = np.vstack(radar_dataframes)
 
     # Could be part of a chain link class
     time_range = dhandler.signal_processing.time_range(radar_config)
