@@ -20,16 +20,6 @@ def load_data(**kwargs):
     h5_handler = dhandler.h5_handler.H5Handler()
     data, radar_config, calib_vec = h5_handler.load(kwargs["dataset"], dataset_dir=None)
     radar_dataframes = data
-    # dataset_name = kwargs.get("dataset")
-    # radar_dataframes, radar_config = dhandler.h5_handler.load_dataset(
-    #         dataset_name, include_config=True
-    # )
-    # calib_vec = dhandler.h5_handler.load_calibration(dataset_name, radar_config)
-
-    # We do not care about the actual frames
-    # radar_dataframes = np.vstack(radar_dataframes)
-
-    # Could be part of a chain link class
     time_range = dhandler.signal_processing.time_range(radar_config)
     distance_range = dhandler.signal_processing.distance_range(radar_config)
 
@@ -52,15 +42,8 @@ def main():
     dataset_params = {
         "dataset": "raw_data/scenario1_0",
     }
-    #TODO
-    if False:
-        data = pyrads.utils.data_loader.load_dataset(**dataset_params)
     data = load_data(**dataset_params)[20:25]
     # User-defined parameters for os-cfar algorithm
-    preproc_params = {
-        "smooth_k": 4,
-        "fft_size": 256
-    }
     oscfar_params = {
         "in_data_shape": data.shape,
         "n_dims": 1,
@@ -71,25 +54,15 @@ def main():
     }
     # Create a pipeline instance and add the data and a signal processing
     # algorithm to it.
-    if False:
-        preproc_pipe = pyrads.pipes.preprocesing_pipeline.Pipeline(**preproc_params)
     oscfar_alg = pyrads.algms.os_cfar.OSCFAR(**oscfar_params)
     id_alg = pyrads.algms.identity.Identity(in_data_shape=oscfar_alg.out_data_shape)
 
     algorithms = [oscfar_alg, id_alg]
     pipeline = pyrads.pipeline.Pipeline(algorithms)
     out = pipeline(data)[-1]
-
-    #TODO: Plotting function in external library
-    import matplotlib.pyplot as plt
-    fig, axs = plt.subplots(2)
-    axs[0].plot(data[0])
-    axs[0].set_title("FFT")
-    axs[1].plot(out[0])
-    axs[1].set_title("OS-CFAR")
-    plt.tight_layout()
-    plt.show()
-    # Plot data before executing pipeline
+    
+    # Plot results
+    pyrads.utils.plotter.plot_single_ramp_pipeline(np.abs(data[0]), out[0])
     return
 
 
