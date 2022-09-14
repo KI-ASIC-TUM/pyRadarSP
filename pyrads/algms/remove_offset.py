@@ -12,6 +12,8 @@ class RemoveOffset(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
+    NAME = "RemoveOffset"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

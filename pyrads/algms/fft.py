@@ -14,6 +14,8 @@ class FFT(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
+    NAME = "FFT"
+
     def __init__(self, *args, **kwargs):
         # TODO: Change variable name. Type is a reserved word and could 
         # bring conflicts

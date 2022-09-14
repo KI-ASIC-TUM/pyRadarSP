@@ -41,3 +41,11 @@ class Algorithm(ABC):
                 "Output shape {} does not match with expected shape {}"
                 "".format(self.output.shape, self.out_data_shape))
         return self.output
+
+    def __repr__(self):
+        s = "{}(InShape: {}, OutShape: {})".format(
+                type(self).__name__,
+                self.in_data_shape,
+                self.out_data_shape
+            )
+        return s

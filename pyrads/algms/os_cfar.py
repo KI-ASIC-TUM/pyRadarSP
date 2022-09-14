@@ -12,6 +12,8 @@ class OSCFAR(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
+    NAME = "OS-CFAR"
+
     def __init__(self,*args,  **kwargs):
         super().__init__(*args, **kwargs)
         # Load os-cfar parameters
