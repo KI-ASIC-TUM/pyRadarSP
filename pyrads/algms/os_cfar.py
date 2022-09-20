@@ -12,8 +12,10 @@ class OSCFAR(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    NAME = "OS-CFAR"
+
+    def __init__(self,*args,  **kwargs):
+        super().__init__(*args, **kwargs)
         # Load os-cfar parameters
         self.n_dims = kwargs.get("n_dims")
         self.window_width = kwargs.get("window_width")
@@ -45,7 +47,7 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         pad_size = (self.n_guard_cells+self.window_width) // 2
         pad_shape = data.shape[:-1] + (pad_size,)
         pad = np.zeros(pad_shape)
-        padded_data = np.hstack((pad, data, pad))
+        padded_data = np.concatenate((pad, data, pad), axis=-1)
         return padded_data
 
 
@@ -60,7 +62,7 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         # neighbours fol calculating the CFAR threshold
         pre_window = data[..., init:init+self.window_width//2]
         post_window = data[... ,end-self.window_width//2:end]
-        window = np.hstack((pre_window, post_window))
+        window = np.concatenate((pre_window, post_window), axis=-1)
         return window
 
 

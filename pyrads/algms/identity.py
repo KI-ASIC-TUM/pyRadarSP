@@ -12,6 +12,8 @@ class Identity(pyrads.algorithm.Algorithm):
     """
     Parent class for radar algorithms
     """
+    NAME = "Identity"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Load os-cfar parameters

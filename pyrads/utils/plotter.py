@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""
+Module with plotting functions
+"""
+# Standard libraries
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def plot_single_ramp_pipeline(
+        image,
+        in_data,
+        out,
+        in_title="FFT",
+        out_title="OS-CFAR"
+    ):
+    """
+    Plot input and output data of a single ramp of a 1D pipeline
+    """
+    fig, axs = plt.subplots(3, figsize=(10,12))
+    axs[0].imshow(image)
+    axs[0].set_xticks([])
+    axs[0].set_yticks([])
+    axs[1].plot(in_data)
+    axs[1].set_title(in_title)
+    axs[2].plot(out)
+    axs[2].set_title(out_title)
+    fig.tight_layout()
+    plt.show()
+
+
+def plot_multi_ramp_pipeline(
+        images,
+        in_data,
+        out_data,
+        in_title="FFT",
+        out_title="OS-CFAR"):
+    fig, ax = plt.subplots(3, figsize=(10,12))
+    plotter = ScrollPlotter(ax, images, in_data, out_data, in_title, out_title)
+    fig.canvas.mpl_connect('scroll_event', plotter.on_scroll)
+    fig.tight_layout()
+    plt.show()
+
+
+class ScrollPlotter():
+    def __init__(self, ax, images, in_data, out_data, in_title, out_title):
+        # Data to be plotted
+        self.images = images
+        self.in_data = in_data
+        self.out_data = out_data
+        # Plotter metadata
+        self.ax = ax
+        self.slices = self.images.shape[0]
+        self.ind = 0
+        self.init_plot(in_title, out_title)
+
+    def init_plot(self, in_title, out_title):
+        """
+        Set the initial data to be shown in the plots
+        """
+        self.im = self.ax[0].imshow(self.images[self.ind])
+        self.ax[0].set_xticks([])
+        self.ax[0].set_yticks([])
+        self.ax[0].set_title("Frame {}".format(self.ind))
+        self.line1, = self.ax[1].plot(self.in_data[self.ind])
+        self.ax[1].set_title(in_title)
+        self.line2, = self.ax[2].plot(self.out_data[self.ind])
+        self.ax[2].set_title(out_title)
+        return
+
+    def on_scroll(self, event):
+        """
+        Reaction to the scroll event in the mouse
+        """
+        if event.button == 'up':
+            self.ind = (self.ind+1) % self.slices
+        else:
+            self.ind = (self.ind-1) % self.slices
+        self.update()
+        return
+
+    def update(self):
+        """
+        Update the content displayed in the plots
+        """
+        # Update data on the three subplots
+        self.im.set_data(self.images[self.ind])
+        self.line1.set_ydata(self.in_data[self.ind])
+        self.line2.set_ydata(self.out_data[self.ind])
+        # Indicate current frame in the title
+        self.ax[0].set_title("Frame {}".format(self.ind))
+        # Refresh the drawing of the plot
+        self.im.axes.figure.canvas.draw()
+        return
+
+    def generate_movie(self):
+        #TODO
+        pass
