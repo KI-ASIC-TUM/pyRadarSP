@@ -5,16 +5,12 @@ Run OS-CFAR over test dataset
 # Standard libraries
 import numpy as np
 # Local libraries
-import dhandler
 import dhandler.h5_handler
-import dhandler.signal_processing
-import dhandler.database
 import pyrads.algms.fft
 import pyrads.algms.os_cfar
 import pyrads.algms.remove_offset
 import pyrads.algms.window
 import pyrads.pipeline
-import pyrads.pipes.preproc_pipeline
 import pyrads.utils.plotter
 
 
