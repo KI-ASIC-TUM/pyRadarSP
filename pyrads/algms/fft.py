@@ -22,6 +22,7 @@ class FFT(pyrads.algorithm.Algorithm):
         self.type = kwargs.get("type")
         self.out_format = kwargs.get("out_format", "modulus")
         self.normalize = kwargs.get("normalize", True)
+        self.off_bins = kwargs.get("off_bins", 0)
         self.n_real_bins = 0
         super().__init__(*args, **kwargs)
 
@@ -34,7 +35,7 @@ class FFT(pyrads.algorithm.Algorithm):
         """
         self.out_data_shape = self.in_data_shape
         if self.type=='range':
-            self.n_real_bins = self.out_data_shape[-1] // 2
+            self.n_real_bins = (self.out_data_shape[-1] // 2) - self.off_bins
             self.out_data_shape = self.in_data_shape[:-1] + (self.n_real_bins,)
             # Add a new dimension in case polar format is used for output
             if self.out_format == "modulus-phase":
@@ -70,7 +71,7 @@ class FFT(pyrads.algorithm.Algorithm):
         if self.normalize:
             data /= self.in_data_shape[-1]*2
         # Remove negative spectrum
-        real_data = data[..., :self.n_real_bins]
+        real_data = data[...,  self.off_bins : self.off_bins+self.n_real_bins]
         return real_data
 
 

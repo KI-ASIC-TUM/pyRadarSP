@@ -54,9 +54,9 @@ class Pipeline():
             if isinstance(element, pyrads.algorithm.Algorithm):
                 self._add_algorithm(element)
             elif isinstance(element, pyrads.pipeline.Pipeline):
-                self.add(element._algorithms)
+                self.add(element._algorithms.values())
             else:
-                raise TypeError("input type invalid")
+                raise TypeError("Input type invalid: {}".format(type(element)))
 
 
     def _add_algorithm(self, algorithm):
