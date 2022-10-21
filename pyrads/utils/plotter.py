@@ -3,6 +3,7 @@
 Module with plotting functions
 """
 # Standard libraries
+import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -36,19 +37,21 @@ def plot_multi_ramp_pipeline(
         in_title="FFT",
         out_title="OS-CFAR"):
     fig, ax = plt.subplots(3, figsize=(10,12))
-    plotter = ScrollPlotter(ax, images, in_data, out_data, in_title, out_title)
+    plotter = ScrollPlotter(fig, ax, images, in_data, out_data, in_title, out_title)
+    plotter.sequence2gif()
     fig.canvas.mpl_connect('scroll_event', plotter.on_scroll)
     fig.tight_layout()
     plt.show()
 
 
 class ScrollPlotter():
-    def __init__(self, ax, images, in_data, out_data, in_title, out_title):
+    def __init__(self, fig, ax, images, in_data, out_data, in_title, out_title):
         # Data to be plotted
         self.images = images
         self.in_data = in_data
         self.out_data = out_data
         # Plotter metadata
+        self.fig = fig
         self.ax = ax
         self.slices = self.images.shape[0]
         self.ind = 0
@@ -93,6 +96,27 @@ class ScrollPlotter():
         self.im.axes.figure.canvas.draw()
         return
 
-    def generate_movie(self):
-        #TODO
+    def sequence2gif(self, fps=5):
+        """
+        Create a gif animation with the sequence of samples
+
+        Iterate over the time steps and generate a gif with the three
+        subplots generated in the plotter.
+
+        Corrupted frames are ignored. TODO: Remove corrupted frames from
+        the dataset.
+        """
+        sequence = []
+        for i in range(17, 59):
+            # Ignore corrupted frames
+            if i in [19, 27, 31, 35, 39, 42, 44, 47,49, 58]:
+                continue
+            self.ind = i
+            self.update()
+            image = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype='uint8')
+            im_shape = self.fig.canvas.get_width_height()[::-1] + (3,)
+            image  = image.reshape(im_shape)
+            sequence.append(image)
+        self.ind = 0
+        imageio.mimsave('./sequence.gif', sequence, fps=fps)
         pass
