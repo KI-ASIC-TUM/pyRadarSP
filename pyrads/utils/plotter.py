@@ -27,6 +27,7 @@ def plot_single_ramp_pipeline(
     axs[2].plot(out)
     axs[2].set_title(out_title)
     fig.tight_layout()
+    fig.savefig("single_chirp.eps", dpi=800)
     plt.show()
 
 
