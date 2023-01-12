@@ -45,6 +45,22 @@ def plot_multi_ramp_pipeline(
     plt.show()
 
 
+def plot_rd_map(image, fft_data):
+    """
+    Plot the range-Doppler map together witht the scene image
+    """
+    n_ramps, n_samples = fft_data.shape
+    doppler_bins = int(n_ramps/2)
+    fig, ax = plt.subplots(2, figsize=(10,12))
+    ax[0].imshow(image)
+    ax[0].set_xlabel("Range (bins)")
+    ax[0].set_ylabel("Velocity (bins)")
+    ax[1].imshow(fft_data, extent=[0, n_samples,-(doppler_bins-1),doppler_bins])
+    fig.tight_layout()
+    fig.savefig("rd_map.eps", dpi=800)
+    plt.show()
+
+
 class ScrollPlotter():
     def __init__(self, fig, ax, images, in_data, out_data, in_title, out_title):
         # Data to be plotted
@@ -110,7 +126,11 @@ class ScrollPlotter():
         sequence = []
         for i in range(17, 59):
             # Ignore corrupted frames
+            # Scene 01:
             if i in [19, 27, 31, 35, 39, 42, 44, 47,49, 58]:
+            # Scene 04:
+            # if i in [7, 11, 20, 22, 24, 30, 32, 38,50, 52, 59, 62, 65, 69, 83,
+            #          87, 90, 94, 100, 103, 108, 113, 115, 121, 125, 129, 131]:
                 continue
             self.ind = i
             self.update()

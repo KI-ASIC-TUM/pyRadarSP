@@ -15,13 +15,17 @@ class FFT(pyrads.algorithm.Algorithm):
     Parent class for radar algorithms
     """
     NAME = "FFT"
+    TYPES = ("range", "doppler", "range-doppler")
 
     def __init__(self, *args, **kwargs):
         # TODO: Change variable name. Type is a reserved word and could 
         # bring conflicts
         self.type = kwargs.get("type")
+        if self.type not in self.TYPES:
+            raise ValueError("{} not a valid FFT type".format(self.type))
         self.out_format = kwargs.get("out_format", "modulus")
         self.normalize = kwargs.get("normalize", True)
+        self.logarithmic_out = kwargs.get("logarithmic_out", False)
         self.off_bins = kwargs.get("off_bins", 0)
         self.n_real_bins = 0
         super().__init__(*args, **kwargs)
@@ -34,8 +38,8 @@ class FFT(pyrads.algorithm.Algorithm):
         In case of 1D FFT, the negative spectrum is removed.
         """
         self.out_data_shape = self.in_data_shape
-        if self.type=='range':
-            self.n_real_bins = (self.out_data_shape[-1] // 2) - self.off_bins
+        self.n_real_bins = (self.out_data_shape[-1] // 2) - self.off_bins
+        if self.type in ("range", "range-doppler"):
             self.out_data_shape = self.in_data_shape[:-1] + (self.n_real_bins,)
             # Add a new dimension in case polar format is used for output
             if self.out_format == "modulus-phase":
@@ -57,7 +61,10 @@ class FFT(pyrads.algorithm.Algorithm):
             angle = np.angle(fft_data)
             formatted_result = np.stack((mod, angle), axis=-1)
         else:
-            raise ValueError("Invalid format: {}". format(self.out_format))
+            raise ValueError("Invalid format: {}".format(self.out_format))
+
+        if self.logarithmic_out:
+            formatted_result = np.log(formatted_result)
         return formatted_result
 
 
@@ -96,5 +103,8 @@ class FFT(pyrads.algorithm.Algorithm):
             fft_result = self.range_fft(in_data)
         elif self.type=="doppler":
             fft_result = self.doppler_fft(in_data)
+        elif self.type=="range-doppler":
+            fft_range = self.range_fft(in_data)
+            fft_result = self.doppler_fft(fft_range)
         formatted_result = self.format_fft(fft_result)
         return formatted_result
