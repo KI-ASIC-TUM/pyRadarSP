@@ -15,16 +15,19 @@ import pyrads.utils.plotter
 
 
 def main(frame_n=30, chirp_n=30, multi_ramp=True):
-    # User-defined parameters for the pipeline
-    dataset_params = {
-        "dataset": "raw_data/scenario1_0",
-    }
-    h5_handler = dhandler.h5_handler.H5Handler()
+    """
+    Main routine for the os-cfar example
+
+    Data shape: (n_frames, tx_antennas, rx_antennas, n_ramps, n_samples)
+
+    @multi_ramp: If true, plot a sequence of ramps. If false, only one
+        ramp is plotted.
+    """
+    h5_handler = dhandler.h5_handler.H5Handler("OTH/scene1_0")
     data, radar_config, calib_vec = h5_handler.load(
-        dataset_params["dataset"],
         dataset_dir=None
     )
-    images = h5_handler.load_images(dataset_params["dataset"])
+    images = h5_handler.load_images()
     images = np.array(images)
     image = images[frame_n]
     # Use information only from first Rx and first Tx antenna.
@@ -37,7 +40,6 @@ def main(frame_n=30, chirp_n=30, multi_ramp=True):
             data.shape[3],
             data.shape[4]
     )
-
     # Define algorithms parameters
     window_params = {
         "axis": -1,
