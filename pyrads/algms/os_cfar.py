@@ -41,13 +41,19 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         The size of the padding is dependent on the CFAR window size
         and the number of guard cells.
         """
-        # Add a padding window on both ends in the sample dimension
-        # The padding is the same through the rest of the dimensions,
-        # So the padding in those dimensions is of the same size
         pad_size = (self.n_guard_cells+self.window_width) // 2
-        pad_shape = data.shape[:-1] + (pad_size,)
-        pad = np.zeros(pad_shape)
-        padded_data = np.concatenate((pad, data, pad), axis=-1)
+        if self.n_dims==1:
+            pad_shape = (data.shape[-1]+2*pad_size, )
+            padded_data_shape =  data.shape[:-1] + pad_shape
+            padded_data = np.zeros(padded_data_shape)
+            padded_data[..., pad_size:-pad_size] = data
+        if self.n_dims==2:
+            pad_shape = (data.shape[-2]+2*pad_size, data.shape[-1]+2*pad_size)
+            # Final shape is same as input shape
+            # with the last two dimensions modified with the padding
+            padded_data_shape =  data.shape[:-2] + pad_shape
+            padded_data = np.zeros(padded_data_shape)
+            padded_data[..., pad_size:-pad_size, pad_size:-pad_size] = data
         return padded_data
 
 
@@ -86,6 +92,7 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         """
         Run the OS-CFAR in 2D
         """
+        padded_data = self.padding(data)
         raise NotImplementedError
         pass
 

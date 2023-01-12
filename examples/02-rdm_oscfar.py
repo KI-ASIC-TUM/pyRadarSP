@@ -80,12 +80,12 @@ def main(frame_n=30, chirp_n=30, multi_frame=False):
         remove_offset_alg,
         window_alg,
         range_fft_alg,
-        # oscfar_alg
+        oscfar_alg
         ]
     pipeline = pyrads.pipeline.Pipeline(algorithms)
     pipe_data = pipeline(reduced_data)
-    fft_out = pipe_data[-1]
-    # out = pipe_data[-1]
+    fft_out = pipe_data[-2]
+    out = pipe_data[-1]
 
     # Plot results
     if multi_frame==False:
