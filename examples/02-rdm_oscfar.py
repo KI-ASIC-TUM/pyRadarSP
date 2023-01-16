@@ -14,7 +14,7 @@ import pyrads.pipeline
 import pyrads.utils.plotter
 
 
-def main(frame_n=30, chirp_n=30, multi_frame=False):
+def main(frame_n=30, chirp_n=30, multi_frame=True):
     """
     Main routine for the 2D OS-CFAR example
 
@@ -94,9 +94,11 @@ def main(frame_n=30, chirp_n=30, multi_frame=False):
         pyrads.utils.plotter.plot_rd_map(image, fft_data, out_data)
     else:
         # TODO: multi-frame plotting not implemented yet
-        fft_data = fft_out[:, 0, 0, chirp_n, :]
-        out_data = oscfar_out[:, 0, 0, chirp_n, :]
-        pyrads.utils.plotter.plot_multi_frame_pipeline(images, fft_data, out_data)
+        fft_data = fft_out[:, 0, 0, :, :]
+        out_data = oscfar_out[:, 0, 0, :, :]
+        pyrads.utils.plotter.plot_multi_ramp_pipeline(
+                images, fft_data, out_data, ndims=2
+        )
     return
 
 

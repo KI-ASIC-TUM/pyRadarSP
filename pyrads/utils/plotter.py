@@ -36,9 +36,27 @@ def plot_multi_ramp_pipeline(
         in_data,
         out_data,
         in_title="FFT",
-        out_title="OS-CFAR"):
+        out_title="OS-CFAR",
+        ndims=1):
     fig, ax = plt.subplots(3, figsize=(10,12))
-    plotter = ScrollPlotter(fig, ax, images, in_data, out_data, in_title, out_title)
+    if ndims==1:
+        plotter = ScrollPlotter_1D(
+            fig=fig,
+            ax=ax,
+            images=images,
+            in_data=in_data,
+            out_data=out_data,
+            in_title=in_title,
+            out_title=out_title)
+    elif ndims==2:
+        plotter = ScrollPlotter_2D(
+            fig=fig,
+            ax=ax,
+            images=images,
+            in_data=in_data,
+            out_data=out_data,
+            in_title=in_title,
+            out_title=out_title)
     plotter.sequence2gif()
     fig.canvas.mpl_connect('scroll_event', plotter.on_scroll)
     fig.tight_layout()
@@ -63,31 +81,30 @@ def plot_rd_map(image, fft_data, cfar_data):
 
 
 class ScrollPlotter():
-    def __init__(self, fig, ax, images, in_data, out_data, in_title, out_title):
+    def __init__(self, *args, **kwargs):
         # Data to be plotted
-        self.images = images
-        self.in_data = in_data
-        self.out_data = out_data
+        self.images = kwargs["images"]
+        self.in_data = kwargs["in_data"]
+        self.out_data = kwargs["out_data"]
         # Plotter metadata
-        self.fig = fig
-        self.ax = ax
+        self.fig = kwargs["fig"]
+        self.ax = kwargs["ax"]
         self.slices = self.images.shape[0]
         self.ind = 0
-        self.init_plot(in_title, out_title)
+        self.scene_n = kwargs.get("secene_n", 1)
+        self.init_plot(kwargs["in_title"], kwargs["out_title"])
 
     def init_plot(self, in_title, out_title):
         """
         Set the initial data to be shown in the plots
         """
-        self.im = self.ax[0].imshow(self.images[self.ind])
-        self.ax[0].set_xticks([])
-        self.ax[0].set_yticks([])
-        self.ax[0].set_title("Frame {}".format(self.ind))
-        self.line1, = self.ax[1].plot(self.in_data[self.ind])
-        self.ax[1].set_title(in_title)
-        self.line2, = self.ax[2].plot(self.out_data[self.ind])
-        self.ax[2].set_title(out_title)
-        return
+        pass
+
+    def update(self):
+        """
+        Update the content displayed in the plots
+        """
+        pass
 
     def on_scroll(self, event):
         """
@@ -98,20 +115,6 @@ class ScrollPlotter():
         else:
             self.ind = (self.ind-1) % self.slices
         self.update()
-        return
-
-    def update(self):
-        """
-        Update the content displayed in the plots
-        """
-        # Update data on the three subplots
-        self.im.set_data(self.images[self.ind])
-        self.line1.set_ydata(self.in_data[self.ind])
-        self.line2.set_ydata(self.out_data[self.ind])
-        # Indicate current frame in the title
-        self.ax[0].set_title("Frame {}".format(self.ind))
-        # Refresh the drawing of the plot
-        self.im.axes.figure.canvas.draw()
         return
 
     def sequence2gif(self, fps=5):
@@ -128,10 +131,13 @@ class ScrollPlotter():
         for i in range(17, 59):
             # Ignore corrupted frames
             # Scene 01:
-            if i in [19, 27, 31, 35, 39, 42, 44, 47,49, 58]:
-            # Scene 04:
-            # if i in [7, 11, 20, 22, 24, 30, 32, 38,50, 52, 59, 62, 65, 69, 83,
-            #          87, 90, 94, 100, 103, 108, 113, 115, 121, 125, 129, 131]:
+            if self.scene_n==1:
+                corrupt_frames = [19, 27, 31, 35, 39, 42, 44, 47,49, 58]
+            elif self.scene_n==4:
+                corrupt_frames = [7, 11, 20, 22, 24, 30, 32, 38,50, 52, 59, 62,
+                        65, 69, 83, 87, 90, 94, 100, 103, 108, 113, 115, 121,
+                        125, 129, 131]
+            if i in corrupt_frames:
                 continue
             self.ind = i
             self.update()
@@ -142,3 +148,68 @@ class ScrollPlotter():
         self.ind = 0
         imageio.mimsave('./sequence.gif', sequence, fps=fps)
         pass
+
+
+class ScrollPlotter_1D(ScrollPlotter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def init_plot(self, in_title, out_title):
+        """
+        Set the initial data to be shown in the plots
+        """
+        self.im = self.ax[0].imshow(self.images[self.ind])
+        self.ax[0].set_xticks([])
+        self.ax[0].set_yticks([])
+        self.ax[0].set_title("Frame {}".format(self.ind))
+        self.line1, = self.ax[1].plot(self.in_data[self.ind])
+        self.ax[1].set_title(in_title)
+        self.line2, = self.ax[2].plot(self.out_data[self.ind])
+        self.ax[2].set_title(out_title)
+        return
+
+    def update(self):
+        """
+        Update the content displayed in the plots
+        """
+        # Update data on the three subplots
+        self.im.set_data(self.images[self.ind])
+        self.line1.set_ydata(self.in_data[self.ind])
+        self.line2.set_ydata(self.out_data[self.ind])
+        # Indicate current frame in the title
+        self.ax[0].set_title("Frame {}".format(self.ind))
+        # Refresh the drawing of the plot
+        self.im.axes.figure.canvas.draw()
+        return
+
+class ScrollPlotter_2D(ScrollPlotter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def init_plot(self, in_title, out_title):
+        """
+        Set the initial data to be shown in the plots
+        """
+        self.im = self.ax[0].imshow(self.images[self.ind])
+        self.ax[0].set_xticks([])
+        self.ax[0].set_yticks([])
+        self.ax[0].set_title("Frame {}".format(self.ind))
+        self.im_fft = self.ax[1].imshow(self.in_data[self.ind])
+        self.ax[1].set_title(in_title)
+        self.im_cfar = self.ax[2].imshow(self.out_data[self.ind])
+        self.ax[2].set_title(out_title)
+        return
+
+    def update(self):
+        """
+        Update the content displayed in the plots
+        """
+        # Update data on the three subplots
+        self.im.set_data(self.images[self.ind])
+        self.im_fft.set_data(self.in_data[self.ind])
+        self.im_cfar.set_data(self.out_data[self.ind])
+        # Indicate current frame in the title
+        self.ax[0].set_title("Frame {}".format(self.ind))
+        # Refresh the drawing of the plot
+        self.im.axes.figure.canvas.draw()
+        return
