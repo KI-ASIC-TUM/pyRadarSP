@@ -53,19 +53,25 @@ class FFT(pyrads.algorithm.Algorithm):
         Adjust the output FFT data to the specified format
         """
         if self.out_format == "modulus":
-            formatted_result = np.abs(fft_data)
+            formatted_fft = np.abs(fft_data)
         elif self.out_format == "complex":
-            formatted_result = fft_data
+            formatted_fft = fft_data
         elif self.out_format == "modulus-phase":
             mod = np.abs(fft_data)
             angle = np.angle(fft_data)
-            formatted_result = np.stack((mod, angle), axis=-1)
+            formatted_fft = np.stack((mod, angle), axis=-1)
         else:
             raise ValueError("Invalid format: {}".format(self.out_format))
 
         if self.logarithmic_out:
-            formatted_result = np.log(formatted_result)
-        return formatted_result
+            result = 20*np.log((formatted_fft))
+            # Formatt result to only positive values
+            minimum = result.min(axis=(-2, -1))
+            minimum = minimum.reshape(minimum.shape+(1,1))
+            result -= minimum
+        else:
+            result = formatted_fft
+        return result
 
 
     def range_fft(self, data):

@@ -55,8 +55,8 @@ def main(frame_n=30, chirp_n=30, multi_frame=False):
     oscfar_params = {
         "n_dims": 2,
         "window_width": 16,
-        "ordered_k": 6,
-        "alpha": 0.2,
+        "ordered_k": 80,
+        "alpha": 0.7,
         "n_guard_cells": 2,
     }
     remove_offset_alg = pyrads.algms.remove_offset.RemoveOffset(
@@ -85,17 +85,17 @@ def main(frame_n=30, chirp_n=30, multi_frame=False):
     pipeline = pyrads.pipeline.Pipeline(algorithms)
     pipe_data = pipeline(reduced_data)
     fft_out = pipe_data[-2]
-    out = pipe_data[-1]
+    oscfar_out = pipe_data[-1]
 
     # Plot results
     if multi_frame==False:
         fft_data = fft_out[frame_n, 0, 0, :, :]
-        # out_data = out[frame_n, 0, 0, chirp_n, :]
-        pyrads.utils.plotter.plot_rd_map(image, fft_data)
+        out_data = oscfar_out[frame_n, 0, 0, :, :]
+        pyrads.utils.plotter.plot_rd_map(image, fft_data, out_data)
     else:
         # TODO: multi-frame plotting not implemented yet
         fft_data = fft_out[:, 0, 0, chirp_n, :]
-        out_data = out[:, 0, 0, chirp_n, :]
+        out_data = oscfar_out[:, 0, 0, chirp_n, :]
         pyrads.utils.plotter.plot_multi_frame_pipeline(images, fft_data, out_data)
     return
 

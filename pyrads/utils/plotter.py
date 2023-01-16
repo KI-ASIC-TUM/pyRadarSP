@@ -45,17 +45,18 @@ def plot_multi_ramp_pipeline(
     plt.show()
 
 
-def plot_rd_map(image, fft_data):
+def plot_rd_map(image, fft_data, cfar_data):
     """
     Plot the range-Doppler map together witht the scene image
     """
     n_ramps, n_samples = fft_data.shape
     doppler_bins = int(n_ramps/2)
-    fig, ax = plt.subplots(2, figsize=(10,12))
+    fig, ax = plt.subplots(3, figsize=(10,12))
     ax[0].imshow(image)
     ax[0].set_xlabel("Range (bins)")
     ax[0].set_ylabel("Velocity (bins)")
     ax[1].imshow(fft_data, extent=[0, n_samples,-(doppler_bins-1),doppler_bins])
+    ax[2].imshow(cfar_data)
     fig.tight_layout()
     fig.savefig("rd_map.eps", dpi=800)
     plt.show()
