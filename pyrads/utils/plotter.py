@@ -13,7 +13,8 @@ def plot_single_ramp_pipeline(
         in_data,
         out,
         in_title="FFT",
-        out_title="OS-CFAR"
+        out_title="OS-CFAR",
+        scene_n=1
     ):
     """
     Plot input and output data of a single ramp of a 1D pipeline
@@ -27,7 +28,7 @@ def plot_single_ramp_pipeline(
     axs[2].plot(out)
     axs[2].set_title(out_title)
     fig.tight_layout()
-    fig.savefig("single_chirp.eps", dpi=800)
+    fig.savefig("single_chirp_scene{}.eps".format(scene_n), dpi=800)
     plt.show()
 
 
@@ -37,7 +38,8 @@ def plot_multi_ramp_pipeline(
         out_data,
         in_title="FFT",
         out_title="OS-CFAR",
-        ndims=1):
+        ndims=1,
+        scene_n=1):
     fig, ax = plt.subplots(3, figsize=(10,12))
     if ndims==1:
         plotter = ScrollPlotter_1D(
@@ -47,7 +49,9 @@ def plot_multi_ramp_pipeline(
             in_data=in_data,
             out_data=out_data,
             in_title=in_title,
-            out_title=out_title)
+            out_title=out_title,
+            scene_n=scene_n
+            )
     elif ndims==2:
         plotter = ScrollPlotter_2D(
             fig=fig,
@@ -56,14 +60,15 @@ def plot_multi_ramp_pipeline(
             in_data=in_data,
             out_data=out_data,
             in_title=in_title,
-            out_title=out_title)
+            out_title=out_title,
+            scene_n=scene_n)
     plotter.sequence2gif()
     fig.canvas.mpl_connect('scroll_event', plotter.on_scroll)
     fig.tight_layout()
     plt.show()
 
 
-def plot_rd_map(image, fft_data, cfar_data):
+def plot_rd_map(image, fft_data, cfar_data, scene_n):
     """
     Plot the range-Doppler map together witht the scene image
     """
@@ -76,12 +81,12 @@ def plot_rd_map(image, fft_data, cfar_data):
     ax[1].imshow(fft_data, extent=[0, n_samples,-(doppler_bins-1),doppler_bins])
     ax[2].imshow(cfar_data)
     fig.tight_layout()
-    fig.savefig("rd_map.eps", dpi=800)
+    fig.savefig("rd_map.eps_scene{}".format(scene_n), dpi=800)
     plt.show()
 
 
 class ScrollPlotter():
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         # Data to be plotted
         self.images = kwargs["images"]
         self.in_data = kwargs["in_data"]
@@ -90,7 +95,7 @@ class ScrollPlotter():
         self.fig = kwargs["fig"]
         self.ax = kwargs["ax"]
         self.slices = self.images.shape[0]
-        self.ind = 0
+        self.ind = 30
         self.scene_n = kwargs.get("secene_n", 1)
         self.init_plot(kwargs["in_title"], kwargs["out_title"])
 
@@ -137,6 +142,8 @@ class ScrollPlotter():
                 corrupt_frames = [7, 11, 20, 22, 24, 30, 32, 38,50, 52, 59, 62,
                         65, 69, 83, 87, 90, 94, 100, 103, 108, 113, 115, 121,
                         125, 129, 131]
+            else:
+                pass
             if i in corrupt_frames:
                 continue
             self.ind = i
@@ -146,13 +153,16 @@ class ScrollPlotter():
             image  = image.reshape(im_shape)
             sequence.append(image)
         self.ind = 0
-        imageio.mimsave('./sequence.gif', sequence, fps=fps)
+        imageio.mimsave("./sequence_scene{}.gif".format(self.scene_n),
+                        sequence,
+                        fps=fps
+                       )
         pass
 
 
 class ScrollPlotter_1D(ScrollPlotter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def init_plot(self, in_title, out_title):
         """
@@ -183,8 +193,8 @@ class ScrollPlotter_1D(ScrollPlotter):
         return
 
 class ScrollPlotter_2D(ScrollPlotter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def init_plot(self, in_title, out_title):
         """

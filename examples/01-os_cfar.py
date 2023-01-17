@@ -14,7 +14,7 @@ import pyrads.pipeline
 import pyrads.utils.plotter
 
 
-def main(frame_n=30, chirp_n=30, multi_ramp=True):
+def main(frame_n=30, chirp_n=30, multi_ramp=True, scene_n=7):
     """
     Main routine for the os-cfar example
 
@@ -23,7 +23,7 @@ def main(frame_n=30, chirp_n=30, multi_ramp=True):
     @multi_ramp: If true, plot a sequence of ramps. If false, only one
         ramp is plotted.
     """
-    h5_handler = dhandler.h5_handler.H5Handler("OTH/scene1_0")
+    h5_handler = dhandler.h5_handler.H5Handler("OTH/scene{}_0".format(scene_n))
     data, radar_config, calib_vec = h5_handler.load(
         dataset_dir=None
     )
@@ -88,11 +88,13 @@ def main(frame_n=30, chirp_n=30, multi_ramp=True):
     if multi_ramp==False:
         fft_data = fft_out[frame_n, 0, 0, chirp_n, :]
         out_data = out[frame_n, 0, 0, chirp_n, :]
-        pyrads.utils.plotter.plot_single_ramp_pipeline(image, fft_data, out_data)
+        pyrads.utils.plotter.plot_single_ramp_pipeline(
+                image, fft_data, out_data, scene_n=scene_n)
     else:
         fft_data = fft_out[:, 0, 0, chirp_n, :]
         out_data = out[:, 0, 0, chirp_n, :]
-        pyrads.utils.plotter.plot_multi_ramp_pipeline(images, fft_data, out_data)
+        pyrads.utils.plotter.plot_multi_ramp_pipeline(
+                images, fft_data, out_data, ndims=1, scene_n=scene_n)
     return
 
 
