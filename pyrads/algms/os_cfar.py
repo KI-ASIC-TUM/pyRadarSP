@@ -54,6 +54,10 @@ class OSCFAR(pyrads.algorithm.Algorithm):
             padded_data_shape =  data.shape[:-2] + pad_shape
             padded_data = np.zeros(padded_data_shape)
             padded_data[..., pad_size:-pad_size, pad_size:-pad_size] = data
+            # Pad Doppler dimension with opposite side values,
+            # as Doppler FFT has toroid-like output
+            padded_data[..., :pad_size, pad_size:-pad_size] = data[..., :-pad_size-1:-1, :]
+            padded_data[..., -pad_size:, pad_size:-pad_size] = data[..., pad_size-1::-1, :]
         return padded_data
 
 

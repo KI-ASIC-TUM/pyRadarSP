@@ -69,9 +69,7 @@ def main(frame_n=14, chirp_n=30, multi_ramp=True, scene_n=7):
     data, radar_config, calib_vec = h5_handler.load(
         dataset_dir=None
     )
-    images = h5_handler.load_images()
-    images = np.array(images)
-    image = images[frame_n]
+    image = plt.imread("./image_labeled.bmp")
     # Use information only from first Rx and first Tx antenna.
     # Keep same dimensionality.
     reduced_data = data[:,0,0,:,:]

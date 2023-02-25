@@ -14,7 +14,7 @@ import pyrads.pipeline
 import pyrads.utils.plotter
 
 
-def main(frame_n=30, chirp_n=30, multi_frame=True, scene_n=4):
+def main(frame_n=30, chirp_n=30, multi_frame=True, overlap=True, scene_n=7):
     """
     Main routine for the 2D OS-CFAR example
 
@@ -22,6 +22,7 @@ def main(frame_n=30, chirp_n=30, multi_frame=True, scene_n=4):
 
     @multi_frame: If true, plot a sequence of ramps. If false, only one
         ramp is plotted.
+    @overlap: If true, plot the CFAR on top of the FFT plot
     """
     h5_handler = dhandler.h5_handler.H5Handler("OTH/scene{}_0".format(scene_n))
     data, radar_config, calib_vec = h5_handler.load(
@@ -55,7 +56,7 @@ def main(frame_n=30, chirp_n=30, multi_frame=True, scene_n=4):
     oscfar_params = {
         "n_dims": 2,
         "window_width": 16,
-        "ordered_k": 80,
+        "ordered_k": 100,
         "alpha": 0.7,
         "n_guard_cells": 2,
     }
@@ -97,8 +98,18 @@ def main(frame_n=30, chirp_n=30, multi_frame=True, scene_n=4):
         # TODO: multi-frame plotting not implemented yet
         fft_data = fft_out[:, 0, 0, :, :]
         out_data = oscfar_out[:, 0, 0, :, :]
+        if overlap:
+            n_plots = 2
+        else:
+            n_plots = 3
         pyrads.utils.plotter.plot_multi_ramp_pipeline(
-                images, fft_data, out_data, ndims=2, scene_n=scene_n
+                images,
+                fft_data,
+                out_data,
+                ndims=2,
+                overlap=overlap,
+                scene_n=scene_n,
+                n_plots = n_plots
         )
     return
 
