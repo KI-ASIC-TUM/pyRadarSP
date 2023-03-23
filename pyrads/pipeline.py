@@ -71,10 +71,10 @@ class Pipeline():
 
     def _run(self, in_data):
         # Check data shape fits the 1st algorithm in_shape
-        if in_data.shape != list(self._algorithms.values())[0].in_data_shape:
+        if in_data.shape != [*self._algorithms.values()][0].in_data_shape:
             raise ValueError(
                 "Input shape {} does not match with input algorithm shape {}"
-                "".format(in_data.shape, self._algorithms[0].in_data_shape))
+                "".format(in_data.shape, [*self._algorithms.values()][0].in_data_shape))
         # List with data at all stages of the pipeline
         pipe_data = [in_data]
         # Run algorithms iteratively. Each algorithm uses output data from
