@@ -41,7 +41,9 @@ def plot_multi_ramp_pipeline(
         ndims=1,
         overlap=False,
         scene_n=1,
-        n_plots=3
+        n_plots=3,
+        init_frame=19,
+        end_frame=57
     ):
     fig, ax = plt.subplots(n_plots, figsize=(10,12))
     if ndims==1:
@@ -53,7 +55,9 @@ def plot_multi_ramp_pipeline(
                 cfar_data=cfar_data,
                 in_title=in_title,
                 out_title=out_title,
-                scene_n=scene_n
+                scene_n=scene_n,
+                init_frame=init_frame,
+                end_frame=end_frame,
             )
     elif ndims==2:
         if overlap:
@@ -66,7 +70,9 @@ def plot_multi_ramp_pipeline(
                     cfar_data=cfar_data,
                     in_title=in_title,
                     out_title=out_title,
-                    scene_n=scene_n
+                    scene_n=scene_n,
+                    init_frame=init_frame,
+                    end_frame=end_frame,
                 )
         else:
             plotter = ScrollPlotter_2D(
@@ -77,7 +83,9 @@ def plot_multi_ramp_pipeline(
                     cfar_data=cfar_data,
                     in_title=in_title,
                     out_title=out_title,
-                    scene_n=scene_n
+                    scene_n=scene_n,
+                    init_frame=init_frame,
+                    end_frame=end_frame,
                 )
     plotter.sequence2gif()
     fig.canvas.mpl_connect('scroll_event', plotter.on_scroll)
@@ -108,6 +116,8 @@ class ScrollPlotter():
         self.images = kwargs["images"]
         self.fft_data = kwargs["fft_data"]
         self.cfar_data = kwargs["cfar_data"]
+        self.init_frame = kwargs.get("init_frame", 17)
+        self.end_frame = kwargs.get("end_frame", 59)
         # Plotter metadata
         self.fig = kwargs["fig"]
         self.ax = kwargs["ax"]
@@ -127,7 +137,7 @@ class ScrollPlotter():
             self.corrupt_frames = [0, 4, 7, 12, 13, 29, 31, 34, 41, 42, 45, 47,
                     52, 59, 70, 71, 72, 77, 81, 84, 91, 104, 108, 110, 120, 121]
         else:
-            pass
+            self.corrupt_frames = []
 
     def init_plot(self, in_title, out_title):
         """
@@ -166,8 +176,9 @@ class ScrollPlotter():
         Corrupted frames are ignored. TODO: Remove corrupted frames from
         the dataset.
         """
+        ind = self.ind
         sequence = []
-        for i in range(17, 59):
+        for i in range(self.init_frame, self.end_frame):
             if i in self.corrupt_frames:
                 continue
             self.ind = i
@@ -176,8 +187,8 @@ class ScrollPlotter():
             im_shape = self.fig.canvas.get_width_height()[::-1] + (3,)
             image  = image.reshape(im_shape)
             sequence.append(image)
-        self.ind = 0
-        imageio.mimsave("./sequence_scene{}.gif".format(self.scene_n),
+        self.ind = ind
+        imageio.mimsave("./sequence_scene_{}.gif".format(self.scene_n),
                         sequence,
                         fps=fps
                        )
