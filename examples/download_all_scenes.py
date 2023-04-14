@@ -9,6 +9,7 @@ Ego-car takes over the three of them
 * new_4: Ego-car follows a second car through a narrow street
 * new_5: Ego-car moves turns in a crossing with low noise around
 * new_6: Ego-car moves through a crowded road with multiple moving cars
+* new_7: Ego-car in countryside crosses a car at fast speed
 """
 # Standard libraries
 import numpy as np
@@ -24,6 +25,7 @@ def main():
         "new_4": "20230314_133320",
         "new_5": "20230314_132605",
         "new_6": "20230314_132927",
+        "new_7": "20230127_092527",
     }
     handler = dhandler.oth_handler.OTHHandler("OTH/20230127_114455")
     for scene in SCENES:
