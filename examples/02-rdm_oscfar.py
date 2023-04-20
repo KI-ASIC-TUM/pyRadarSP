@@ -69,10 +69,10 @@ def main(frame_n=30, multi_frame=True, overlap=True, scene_n="new_1"):
     }
     oscfar_params = {
         "n_dims": 2,
-        "window_width": 16,
-        "ordered_k": 100,
-        "alpha": 0.7,
-        "n_guard_cells": 2,
+        "window_width": 10,
+        "ordered_k": 80,
+        "alpha": 0.75,
+        "n_guard_cells": 4,
     }
     remove_offset_alg = pyrads.algms.remove_offset.RemoveOffset(
         reduced_data.shape
