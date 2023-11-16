@@ -25,6 +25,7 @@ class FFT(pyrads.algorithm.Algorithm):
             raise ValueError("{} not a valid FFT type".format(self.type))
         self.out_format = kwargs.get("out_format", "modulus")
         self.normalize = kwargs.get("normalize", True)
+        self.unitary = kwargs.get("unitary", False)
         self.logarithmic_out = kwargs.get("logarithmic_out", False)
         self.off_bins = kwargs.get("off_bins", 0)
         self.n_real_bins = 0
@@ -54,6 +55,10 @@ class FFT(pyrads.algorithm.Algorithm):
         """
         if self.out_format == "modulus":
             formatted_fft = np.abs(fft_data)
+            # Arrange data between 0 and 1
+            if self.unitary:
+                formatted_fft = formatted_fft - formatted_fft.min()
+                formatted_fft /= formatted_fft.max()
         elif self.out_format == "complex":
             formatted_fft = fft_data
         elif self.out_format == "modulus-phase":
