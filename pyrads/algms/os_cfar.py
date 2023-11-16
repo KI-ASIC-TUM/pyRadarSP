@@ -45,7 +45,7 @@ class OSCFAR(pyrads.algorithm.Algorithm):
         if self.n_dims==1:
             pad_shape = (data.shape[-1]+2*pad_size, )
             padded_data_shape =  data.shape[:-1] + pad_shape
-            padded_data = np.zeros(padded_data_shape)
+            padded_data = np.zeros(padded_data_shape) + data.mean()
             padded_data[..., pad_size:-pad_size] = data
         if self.n_dims==2:
             pad_shape = (data.shape[-2]+2*pad_size, data.shape[-1]+2*pad_size)
