@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Run OS-CFAR over test dataset
+Run RD-map over a dynamic scenario
 """
 # Standard libraries
 import numpy as np
 # Local libraries
+import dhandler.oth_handler
 import dhandler.h5_handler
 import pyrads.algms.fft
 import pyrads.algms.os_cfar
@@ -14,7 +15,16 @@ import pyrads.pipeline
 import pyrads.utils.plotter
 
 
-def main(frame_n=30, chirp_n=30, multi_frame=True, overlap=True, scene_n=7):
+NEW_SCENES = {
+    "new_1": "20230127_114455",
+    "new_2": "20230125_131034",
+    "new_3": "20230314_132412",
+    "new_4": "20230314_133320",
+    "new_5": "20230314_132605",
+    "new_6": "20230314_132927",
+}
+
+def main(frame_n=30, multi_frame=True, overlap=True, scene_n="new_1"):
     """
     Main routine for the 2D OS-CFAR example
 
@@ -24,11 +34,15 @@ def main(frame_n=30, chirp_n=30, multi_frame=True, overlap=True, scene_n=7):
         ramp is plotted.
     @overlap: If true, plot the CFAR on top of the FFT plot
     """
-    h5_handler = dhandler.h5_handler.H5Handler("OTH/scene{}_0".format(scene_n))
-    data, radar_config, calib_vec = h5_handler.load(
-        dataset_dir=None
-    )
-    images = h5_handler.load_images()
+    if type(scene_n) is str:
+        handler = dhandler.oth_handler.OTHHandler("OTH/"+NEW_SCENES[scene_n])
+    else:
+        handler = dhandler.h5_handler.H5Handler("OTH/scene{}_0".format(scene_n))
+
+    data, radar_config, calib_vec = handler.load(skip_permission=False)
+    objects = handler.load_objects(dataset_dir=None)
+    objects = np.array(objects)
+    images = handler.load_images(image_types=['image_left_stereo'])
     images = np.array(images)
     image = images[frame_n]
     # Use information only from first Rx and first Tx antenna.
@@ -55,10 +69,10 @@ def main(frame_n=30, chirp_n=30, multi_frame=True, overlap=True, scene_n=7):
     }
     oscfar_params = {
         "n_dims": 2,
-        "window_width": 16,
-        "ordered_k": 100,
-        "alpha": 0.7,
-        "n_guard_cells": 2,
+        "window_width": 10,
+        "ordered_k": 80,
+        "alpha": 0.75,
+        "n_guard_cells": 4,
     }
     remove_offset_alg = pyrads.algms.remove_offset.RemoveOffset(
         reduced_data.shape
@@ -95,7 +109,6 @@ def main(frame_n=30, chirp_n=30, multi_frame=True, overlap=True, scene_n=7):
         pyrads.utils.plotter.plot_rd_map(
                 image, fft_data, out_data, scene_n=scene_n)
     else:
-        # TODO: multi-frame plotting not implemented yet
         fft_data = fft_out[:, 0, 0, :, :]
         out_data = oscfar_out[:, 0, 0, :, :]
         if overlap:
@@ -109,7 +122,9 @@ def main(frame_n=30, chirp_n=30, multi_frame=True, overlap=True, scene_n=7):
                 ndims=2,
                 overlap=overlap,
                 scene_n=scene_n,
-                n_plots = n_plots
+                n_plots = n_plots,
+                init_frame=0,
+                end_frame=len(images)
         )
     return
 
