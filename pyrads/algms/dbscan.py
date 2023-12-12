@@ -51,7 +51,7 @@ class DBSCAN(pyrads.algorithm.Algorithm):
                     break
             # Determine if ego point is a core points,
             # based on the number of neighbours it has
-            core_points[i] = neighbours[i] > self.min_pts
+            core_points[i] = neighbours[i] >= self.min_pts
             # create labelled clusters
             if core_points[i]:
                 # Check if point was labelled before
