@@ -14,7 +14,7 @@ dataset generated within the KI-ASIC project. For easily accessing this data,
 we recommend to install the python library that handles and organizes the dataset:
 
 ```bash
-pip install git@gitlab.lrz.de:ki-asic/kiasic-datasets.git
+pip install git@gitlab.lrz.de:ki-asic/pyradarsp.git
 ```
 
 DISCLAIMER: At the moment of publishing this, the *kiasic-datasets* library and the dataset associated to it was not made public, so any functionality that depends on this library will not be available.
